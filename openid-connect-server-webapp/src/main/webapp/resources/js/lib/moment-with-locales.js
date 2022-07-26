@@ -510,7 +510,7 @@
     var matchUnsigned  = /\d+/;           //       0 - inf
     var matchSigned    = /[+-]?\d+/;      //    -inf - inf
 
-    var matchOffset    = /Z|[+-]\d\d:?\d\d/gi; // +00:00 -00:00 +0000 -0000 or Z
+    var matchOffset    = /Z|[+-]\d\d:?\d\d/gi; // +00:00 -00:00 +00:00 -0000 or Z
 
     var matchTimestamp = /[+-]?\d+(\.\d{1,3})?/; // 123456789 123456789.123
 
