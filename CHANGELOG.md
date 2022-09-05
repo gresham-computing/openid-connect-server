@@ -1,5 +1,5 @@
 Unreleased:
-- Updated JDK to Corretto 1.8.332
+- Updated JDK to Corretto 1.8.342
 - Uprgaded Jackson Components to 2.13.3
 
 *1.3.3-GRESHAM:
