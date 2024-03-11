@@ -4,9 +4,12 @@ parameters:
   release:
     type: boolean
     default: false
+  semgrep_scan:
+    type: boolean
+    default: false
 
 orbs:
-  gresham: gresham-computing/gresham-orb@5.1.0
+  gresham: gresham-computing/gresham-orb@5.8.0
 
 executors:
   docker-executor:
@@ -15,6 +18,10 @@ executors:
         aws_auth:
           aws_access_key_id: $GIS_PRD_ECR_INT_BUILD_ACCESS_KEY
           aws_secret_access_key: $GIS_PRD_ECR_INT_BUILD_SECRET_ACCESS_KEY
+
+  linux-machine:
+    machine:
+      image: ubuntu-2204:2023.10.1
 
 jobs:
   build-and-deploy:
@@ -83,9 +90,28 @@ jobs:
       - gresham/whitelist-remove:
           pattern: OpenId
 
+  semgrep-scan:
+    executor: linux-machine
+    resource_class: medium
+    steps:
+      - checkout
+      - gresham/get-whitelister
+      - gresham/whitelist-add:
+          pattern: OpenId
+          kondukto: true
+      - gresham/semgrep-scan:
+          kondukto: true
+          konduktoProject: "openid-connect-server"
+          konduktoBranch: "${CIRCLE_BRANCH}"
+      - gresham/whitelist-remove:
+          pattern: OpenId
+          kondukto: true
 workflows:
   build-and-test:
-    unless: << pipeline.parameters.release >>
+    unless:
+      or:
+        - << pipeline.parameters.release >>
+        - << pipeline.parameters.semgrep_scan >>
     jobs:
       - build-and-deploy:
           context:
@@ -111,6 +137,28 @@ workflows:
           filters:
             branches:
               only: 1.3.x
+
+  semgrep-scan:
+    when: << pipeline.parameters.semgrep_scan >>
+    jobs:
+      - semgrep-scan:
+          context:
+            - gresham-aws
+            - CircleCi-Gresham-Credentials
+
+  scheduled-security-scan:
+    triggers:
+      - schedule:
+          cron: 0 4 * * 1
+          filters:
+            branches:
+              only: 1.3.x
+    jobs:
+      - semgrep-scan:
+          name: Semgrep Scan
+          context:
+            - gresham-aws
+            - CircleCi-Gresham-Credentials
 
 commands:
   setup-git-credentials:
