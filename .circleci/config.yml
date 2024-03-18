@@ -9,7 +9,7 @@ parameters:
     default: false
 
 orbs:
-  gresham: gresham-computing/gresham-orb@5.8.0
+  gresham: gresham-computing/gresham-orb@dev:c724315
 
 executors:
   docker-executor:
@@ -100,8 +100,9 @@ jobs:
           pattern: OpenId
           kondukto: true
       - gresham/semgrep-scan:
+          rulesets: "java security-audit"
           kondukto: true
-          konduktoProject: "openid-connect-server"
+          konduktoProject: "testing"
           konduktoBranch: "${CIRCLE_BRANCH}"
       - gresham/whitelist-remove:
           pattern: OpenId
