@@ -9,7 +9,7 @@ parameters:
     default: false
 
 orbs:
-  gresham: gresham-computing/gresham-orb@dev:c724315
+  gresham: gresham-computing/gresham-orb@dev:d10aaf1
 
 executors:
   docker-executor:
